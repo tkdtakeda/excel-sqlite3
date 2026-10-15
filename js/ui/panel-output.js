@@ -6,6 +6,9 @@
   'use strict';
   const { h, icon, fmt } = X.util;
   const ui = X.ui;
+  const selected = new Set(); // チェックを付けたテーブル（名前の小文字）
+  const lower = (n) => String(n).toLowerCase();
+  const idsOf = (t) => t.parts.map((p) => p.src.id);
 
   const STATUS = {
     none:     { icon: 'circle-dot',           text: '未作成',           cls: '' },
@@ -42,7 +45,8 @@
     return h('li', null,
       h('div', { class: 'part-main' }, icon('arrow-turn-up', 'fa-rotate-90'),
         h('span', { text: p.src.fileName + (p.src.kind === 'excel' || p.src.kind === 'sqlite' ? ' / ' + p.src.label : '') }),
-        h('small', { text: fmt.num(p.rows.length) + ' 行' })),
+        h('small', { text: fmt.num(p.rows.length) + ' 行' }),
+        h('button', { class: 'icon-btn sm', title: 'このシートを別のテーブルに分ける', on: { click: () => X.merge.split(p.src.id) } }, icon('scissors'))),
       X.plan.hasDiff(d) || p.src.result.dupHeaders ? h('div', { class: 'part-diff' },
         d && d.from !== d.to ? h('span', { class: 'tag tag-warn', title: 'それまでの列の数 → このシートの列の数' }, icon('triangle-exclamation'), d.from + '→' + d.to + ' 列') : null,
         d ? d.added.map((n) => h('span', { class: 'tag tag-add', title: '末尾に追加した列（ほかのシートの行は空欄）', text: '+' + n })) : null,
@@ -52,17 +56,25 @@
 
   function tableCard(t) {
     const sql = X.plan.createSql(t);
-    return h('div', { class: 'tbl-card' },
-      h('div', { class: 'tbl-head' }, icon('table'), h('b', { text: t.name }),
+    const key = lower(t.name);
+    const on = selected.has(key);
+    return h('div', { class: 'tbl-card' + (on ? ' is-on' : '') },
+      h('div', { class: 'tbl-head', 'data-form': '' },
+        h('input', { type: 'checkbox', checked: on, title: 'まとめるテーブルとして選ぶ',
+          on: { change: (e) => { if (e.target.checked) selected.add(key); else selected.delete(key); X.shell.render(); } } }),
+        h('span', { class: 'tbl-name-wrap', title: 'クリックして名前を変える（Enter で確定）' }, icon('pen', 'tbl-pen'),
+          h('input', { type: 'text', class: 'inp tbl-name', 'data-key': 'tn-' + key, value: t.name, 'aria-label': 'テーブル名',
+            on: { change: (e) => { const v = e.target.value.trim(); if (v && v !== t.name) X.merge.setTableName(idsOf(t), v); else e.target.value = t.name; } } }))),
+      h('div', { class: 'tbl-sub' },
         t.merged ? h('span', { class: 'tag tag-merge' }, icon('object-group'), t.parts.length + ' 件を結合') : null,
         h('span', { class: 'tbl-meta', text: fmt.num(t.rowCount) + ' 行 × ' + t.columns.length + ' 列' })),
       t.merged ? h('ul', { class: 'tbl-parts' }, t.parts.map(partItem)) : null,
       h('details', { class: 'tbl-sql' }, h('summary', null, icon('code'), 'CREATE 文を見る'), h('pre', { text: sql })));
   }
 
-  /** 共通の名前の候補（シート名・ファイル名の共通の先頭部分。短すぎれば最初の名前） */
+  /** 共通の名前の候補（テーブル名の共通の先頭部分。短すぎれば最初の名前） */
   function commonName(list) {
-    const names = list.map((s) => s.tableName);
+    const names = list.map((s) => s.tableName || s.name);
     let p = names[0];
     names.forEach((n) => { while (p && n.indexOf(p) !== 0) p = p.slice(0, -1); });
     p = p.replace(/[-_\s.（(]+$/, '');
@@ -79,6 +91,24 @@
       h('div', { class: 'row' }, input, h('button', { class: 'btn btn-primary', on: { click: merge } }, icon('object-group'), 'まとめる')));
   }
 
+  /** チェックを付けたテーブルを 1 つにまとめるバー */
+  function mergeBar(picked) {
+    if (picked.length < 2) {
+      return h('p', { class: 'note' }, icon('pen'), 'テーブル名はクリックして変えられます。', icon('object-group'), 'チェックを 2 つ以上付けると、1 つのテーブルにまとめられます。');
+    }
+    const input = h('input', { type: 'text', class: 'inp grow', 'data-key': 'merge-picked', value: commonName(picked), title: 'まとめたテーブルの名前' });
+    const run = async () => {
+      if (await X.merge.setTableName(picked.flatMap(idsOf), input.value)) selected.clear();
+      X.shell.render();
+    };
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); e.stopPropagation(); run(); } });
+    return h('div', { class: 'merge-bar' },
+      h('div', null, icon('object-group'), h('b', { text: '選んだ ' + picked.length + ' 件を 1 つのテーブルにまとめる' }),
+        h('button', { class: 'icon-btn sm', title: '選択を外す', on: { click: () => { selected.clear(); X.shell.render(); } } }, icon('xmark'))),
+      h('div', { class: 'row' }, input, h('button', { class: 'btn btn-primary', on: { click: run } }, icon('object-group'), 'まとめる')),
+      h('small', null, '列は名前で合わせます。列が違えば、確かめてから列を追加します。'));
+  }
+
   function render(body) {
     const b = X.ws.build();
     const st = STATUS[b.status] || STATUS.none;
@@ -90,7 +120,10 @@
     const hints = X.plan.mergeHints(X.ws.included());
     if (hints.length) body.appendChild(ui.section('まとめ候補', 'lightbulb', hints.map(hintCard)));
 
-    body.appendChild(ui.section('作られるテーブル（' + tables.length + '）', 'layer-group', tables.map(tableCard)));
+    // なくなったテーブルの選択は外す
+    const keys = new Set(tables.map((t) => lower(t.name)));
+    [...selected].forEach((k) => { if (!keys.has(k)) selected.delete(k); });
+    body.appendChild(ui.section('作られるテーブル（' + tables.length + '）', 'layer-group', mergeBar(tables.filter((t) => selected.has(lower(t.name)))), tables.map(tableCard)));
 
     body.appendChild(ui.section('出力の設定', 'gear',
       h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: X.ws.options().sourceColumn, on: { change: (e) => X.ws.setOption('sourceColumn', e.target.checked) } }),

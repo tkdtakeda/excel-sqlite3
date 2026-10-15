@@ -78,6 +78,15 @@
     if (asking) return false;
     name = X.ws.sanitizeTable(name);
     const all = X.ws.sources();
+    // 名前の変更だけ（同じテーブルのシートを、ほかと重ならない名前に変える）なら、確認せずに変える
+    const others = all.filter((s) => s.include && !ids.includes(s.id) && lower(s.tableName) === lower(name));
+    const current = new Set(ids.map((id) => lower(X.ws.source(id).tableName)));
+    if (!others.length && current.size === 1) {
+      const before = X.ws.source(ids[0]).tableName;
+      ids.forEach((id) => X.ws.setTableName(id, name));
+      if (before !== name) ui.toast('テーブル名を「' + before + '」から「' + name + '」に変えました', 'ok');
+      return true;
+    }
     const members = all.filter((s) => s.include && (ids.includes(s.id) || lower(s.tableName) === lower(name)));
     const base = members.filter((s) => !ids.includes(s.id));
     const incoming = members.filter((s) => ids.includes(s.id));
@@ -117,12 +126,29 @@
       ui.modal('列が違うシートを結合しました', diffView(name, items), {
         icon: 'object-group', width: 'var(--w-modal-md)',
         actions: [
-          { label: '別のテーブルにする', icon: 'scissors', run: () => incoming.forEach((s) => X.ws.setTableName(s.id, s.tableName + '_' + X.util.baseName(s.fileName))) },
+          { label: '別のテーブルにする', icon: 'scissors', run: () => incoming.forEach((s) => split(s.id)) },
           { label: '列を追加して結合する', primary: true, icon: 'check', run: () => {} },
         ],
       });
     });
   }
 
-  X.merge = { setTableName, afterLoad, alignHeader };
+  /** ほかと重ならないテーブル名（重なれば _2, _3 … を付ける） */
+  function uniqueName(base) {
+    const used = new Set(X.ws.sources().map((s) => lower(s.tableName)));
+    let name = X.ws.sanitizeTable(base), i = 2;
+    const root = name;
+    while (used.has(lower(name))) name = root + '_' + i++;
+    return name;
+  }
+
+  /** 結合したテーブルから 1 件を取り出し、別のテーブルにする */
+  function split(id) {
+    const s = X.ws.source(id);
+    const name = uniqueName(s.kind === 'csv' || s.kind === 'paste' ? X.util.baseName(s.fileName) : s.label);
+    X.ws.setTableName(id, name);
+    ui.toast('「' + labelOf(s) + '」を別のテーブル「' + name + '」に分けました', 'ok');
+  }
+
+  X.merge = { setTableName, afterLoad, alignHeader, split, uniqueName };
 })(window.X2S);
