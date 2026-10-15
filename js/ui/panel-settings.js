@@ -25,6 +25,21 @@
     });
   }
 
+  /** いまの付け方での列名の例（上下の段で名前が違う最初の列） */
+  function headerExample(r, src) {
+    const last = src.settings.headerName === 'last';
+    const text = last ? '上の段を飛ばし、下の段の名前だけにします。同じ名前が重なれば _2 を付けます。' : '上の段と下の段を「_」でつなぎます。';
+    for (const c of r.columns) {
+      const parts = [];
+      for (let k = 0; k < r.header.rows; k++) {
+        const v = X.types.display((src.grid[r.startRow + k] || [])[c.index]).trim();
+        if (v && v !== parts[parts.length - 1]) parts.push(v);
+      }
+      if (parts.length >= 2) return text + '例：' + parts.join('／') + ' → ' + c.name;
+    }
+    return text;
+  }
+
   function render(body) {
     const src = X.ws.active();
     if (!src) { body.appendChild(ui.empty('table', 'ファイルを読み込むと、ここで読み取り方を設定できます')); return; }
@@ -76,8 +91,15 @@
       ], s.header, (v) => set(v === 'yes' ? { header: 'yes', headerRows: r.header.rows || 1 } : { header: v })),
       h('div', { class: 'row', 'data-form': '' },
         ui.field('段数（行）', numInput('hrows', r.header.has ? r.header.rows : 0, 1, 10, (v) => set({ header: 'yes', headerRows: v }),
-          { auto: s.header === 'auto', disabled: s.header === 'no', title: '2 段以上は「大項目_小項目」の列名になります' }))),
-      h('p', { class: 'note' }, icon('wand-magic-sparkles'), '自動判定：' + (ah.has ? ah.rows + ' 行' : 'なし') + '。2 段以上は「大項目_小項目」の列名にします。')));
+          { auto: s.header === 'auto', disabled: s.header === 'no', title: '2 段以上のときは、下の「列名の付け方」を選べます' }))),
+      h('p', { class: 'note' }, icon('wand-magic-sparkles'), '自動判定：' + (ah.has ? ah.rows + ' 行' : 'なし')),
+      r.header.rows >= 2 ? h('div', { class: 'subfield' },
+        h('span', { class: 'field-label' }, '2 段以上の列名の付け方'),
+        ui.segmented([
+          { value: 'join', label: '大項目_小項目', icon: 'link', title: '例：得点_国語' },
+          { value: 'last', label: '下の段のみ', icon: 'arrow-down-short-wide', title: '上の段を飛ばして、下の段の名前だけにします（例：国語）' },
+        ], s.headerName || 'join', (v) => set({ headerName: v })),
+        h('p', { class: 'note' }, icon('circle-info'), headerExample(r, src))) : null));
 
     // ---- 終わりの判定 ----
     body.appendChild(ui.section('終わりの判定', 'flag-checkered',

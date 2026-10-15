@@ -26,6 +26,7 @@
     blankCols: 2,        // 空の列がこの数だけ続いたら終わり
     skipFooter: 0,       // 末尾から除く行数（合計行など）
     dropEmptyCols: true, // 名前も値もない列は取り込まない
+    headerName: 'join',  // 2 段以上のヘッダーの列名：'join'＝大項目_小項目 / 'last'＝下の段のみ
   });
 
   function defaults() { return Object.assign({}, DEFAULTS); }
@@ -34,15 +35,17 @@
     return T.display(v).replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
   }
 
-  /** 複数段のヘッダーを「大項目_小項目」でつなぐ（同じ語の連続は 1 つに） */
-  function headerName(g, r0, rows, c) {
+  /** 複数段のヘッダーの列名
+      mode 'join'：「大項目_小項目」でつなぐ（同じ語の連続は 1 つに）
+      mode 'last'：下の段のみ（下の段が空なら、すぐ上の空でない段） */
+  function headerName(g, r0, rows, c, mode) {
     const parts = [];
     for (let k = 0; k < rows; k++) {
       const row = g[r0 + k];
       const t = cleanName(row ? row[c] : null);
       if (t && t !== parts[parts.length - 1]) parts.push(t);
     }
-    return parts.join('_');
+    return mode === 'last' ? parts[parts.length - 1] || '' : parts.join('_');
   }
 
   /** 名前の重複を _2, _3 … で避ける */
@@ -74,7 +77,7 @@
     const s = src.settings;
     const cols = [];
     for (let c = c0; c <= c1; c++) {
-      const raw = hdr.has ? headerName(g, r0, hdr.rows, c) : '';
+      const raw = hdr.has ? headerName(g, r0, hdr.rows, c, src.settings.headerName) : '';
       const inf = T.inferColumn(g, rowIdx, c);
       const ov = src.overrides[c] || {};
       const dropped = s.dropEmptyCols && !raw && inf.empty;
@@ -144,7 +147,7 @@
     let dupHeaders = 0;
     if (hdr.has) {
       const names = [];
-      for (let c = c0; c <= c1; c++) names.push(headerName(g, r0, hdr.rows, c));
+      for (let c = c0; c <= c1; c++) names.push(headerName(g, r0, hdr.rows, c, src.settings.headerName));
       const kept = idx.filter((r) => !isHeaderRepeat(g[r], c0, names));
       dupHeaders = idx.length - kept.length;
       idx.length = 0;
