@@ -1,0 +1,169 @@
+/* =========================================================
+   css/layout.css : 画面の骨組み
+   上部バー／左のアイコン列／脇パネル（開いたときだけ幅を取る）／メイン（最大限に広く）
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  color: var(--c-text);
+  background: var(--c-bg);
+  overflow: hidden;
+}
+[hidden] { display: none !important; }
+
+.app {
+  display: grid;
+  grid-template-columns: var(--w-rail) 0 1fr;
+  grid-template-rows: var(--h-header) 1fr;
+  grid-template-areas: "top top top" "rail panel main";
+  height: 100vh;
+  transition: grid-template-columns var(--t-mid) ease;
+}
+.app.has-panel { grid-template-columns: var(--w-rail) var(--w-panel) 1fr; }
+
+/* ---------- 上部バー ---------- */
+.topbar {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: 0 var(--sp-5);
+  background: var(--c-primary-700);
+  color: #fff;
+  box-shadow: var(--shadow-1);
+  z-index: var(--z-panel);
+}
+.brand { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
+.brand-mark { display: inline-flex; gap: 5px; align-items: center; font-size: 14px; color: var(--c-primary-200); }
+.brand-mark .fa-arrow-right { font-size: 10px; opacity: .8; }
+.brand-name { font-size: var(--fs-lg); font-weight: var(--fw-bold); letter-spacing: .02em; white-space: nowrap; }
+.viewtabs { display: flex; gap: var(--sp-1); align-self: stretch; align-items: flex-end; }
+.viewtab {
+  display: inline-flex; align-items: center; gap: var(--sp-3);
+  height: 40px; padding: 0 var(--sp-5);
+  border: 0; border-radius: var(--r-md) var(--r-md) 0 0;
+  background: transparent; color: var(--c-primary-100);
+  font: inherit; font-weight: var(--fw-bold); cursor: pointer;
+  transition: background var(--t-fast);
+}
+.viewtab:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.viewtab.is-on { background: var(--c-bg); color: var(--c-primary-700); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: var(--sp-4); }
+
+/* ---------- 左のアイコン列 ---------- */
+.rail {
+  grid-area: rail;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: var(--sp-3) 0;
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  z-index: var(--z-panel);
+}
+.rail-top, .rail-bottom { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
+.rail-btn {
+  position: relative;
+  width: 40px; height: 40px;
+  border: 0; border-radius: var(--r-md);
+  background: transparent; color: var(--c-text-sub);
+  font-size: 17px; cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.rail-btn:hover { background: var(--c-primary-50); color: var(--c-primary-700); }
+.rail-btn.is-on { background: var(--c-primary-100); color: var(--c-primary-700); box-shadow: inset 3px 0 0 var(--c-primary-600); }
+.rail-badge {
+  position: absolute; top: 3px; right: 2px;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: var(--r-pill);
+  background: var(--c-accent-600); color: #fff;
+  font-size: 10px; line-height: 16px; font-weight: var(--fw-bold);
+}
+/* マウスを乗せると名前を出す（アイコンだけで分からないとき用） */
+.rail-btn::after {
+  content: attr(aria-label);
+  position: absolute; left: 46px; top: 50%; transform: translateY(-50%);
+  padding: 3px 8px; border-radius: var(--r-sm);
+  background: var(--c-primary-900); color: #fff;
+  font-size: var(--fs-sm); white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity var(--t-fast);
+  z-index: var(--z-pop);
+}
+.rail-btn:hover::after { opacity: 1; transition-delay: 400ms; }
+
+/* ---------- 脇パネル ---------- */
+.panel {
+  grid-area: panel;
+  display: flex; flex-direction: column;
+  min-width: 0; overflow: hidden;
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 44px; padding: 0 var(--sp-3) 0 var(--sp-5);
+  border-bottom: 1px solid var(--c-border);
+  flex: none;
+}
+.panel-head h2 { display: flex; align-items: center; gap: var(--sp-3); margin: 0; font-size: var(--fs-lg); color: var(--c-primary-700); white-space: nowrap; }
+.panel-body { flex: 1; overflow-y: auto; padding: var(--sp-4) var(--sp-5) var(--sp-6); min-width: var(--w-panel); }
+
+/* ---------- メイン ---------- */
+.main { grid-area: main; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.view-preview { position: relative; }
+
+.sourcebar {
+  flex: none;
+  display: flex; align-items: center; gap: var(--sp-4);
+  min-height: var(--h-sourcebar);
+  padding: var(--sp-2) var(--sp-4);
+  overflow-x: auto;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+}
+.sourcebar:empty { display: none; }
+.summary {
+  flex: none;
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-3);
+  min-height: var(--h-summary);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--c-primary-50);
+  border-bottom: 1px solid var(--c-border);
+}
+.summary:empty { display: none; }
+.grid-host { flex: 1; min-height: 0; position: relative; }
+.empty-state { flex: 1; display: flex; align-items: center; justify-content: center; padding: var(--sp-6); }
+
+/* ---------- 重なるもの ---------- */
+.drop-overlay {
+  position: fixed; inset: 0;
+  display: none; align-items: center; justify-content: center;
+  background: var(--c-overlay);
+  z-index: var(--z-modal);
+}
+.drop-overlay.is-on { display: flex; }
+.drop-box {
+  padding: var(--sp-7) 64px;
+  border: 3px dashed var(--c-primary-500); border-radius: var(--r-lg);
+  background: var(--c-surface); color: var(--c-primary-700);
+  text-align: center; pointer-events: none;
+}
+.drop-box i { font-size: 44px; }
+.drop-box p { margin: var(--sp-4) 0 var(--sp-2); font-size: var(--fs-xl); font-weight: var(--fw-bold); }
+
+.toasts { position: fixed; right: var(--sp-5); bottom: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-3); z-index: var(--z-toast); }
+
+.busy {
+  position: fixed; inset: 0;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(246, 248, 251, .6);
+  z-index: var(--z-busy);
+}
+.busy.is-on { display: flex; }
+
+@media (max-width: 900px) {
+  .brand-name { display: none; }
+  .app.has-panel { grid-template-columns: var(--w-rail) 280px 1fr; }
+  .panel-body { min-width: 280px; }
+}

@@ -1,0 +1,93 @@
+/* =========================================================
+   css/grid.css : 大量の行の表（X.VGrid）と「SQL で確認」タブ
+   ========================================================= */
+.vg {
+  position: absolute; inset: 0;
+  overflow: auto;
+  background: var(--c-surface);
+  font-size: var(--fs-sm);
+  outline: none;
+}
+.vg-head {
+  position: sticky; top: 0; z-index: 3;
+  display: flex;
+  height: var(--h-grid-head);
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border-strong);
+}
+.vg-corner { position: sticky; left: 0; z-index: 4; flex: none; background: var(--c-surface-2); border-right: 1px solid var(--c-border-strong); }
+.vg-pad { flex: none; }
+.vg-hc {
+  flex: none; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  padding: 0 6px; overflow: hidden;
+  border-right: 1px solid var(--c-border);
+}
+.vg-letter { font: var(--fs-xs) var(--font-mono); color: var(--c-text-mute); }
+.vg-name { display: block; font-weight: var(--fw-bold); color: var(--c-primary-700); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vg-name i { margin-right: 4px; font-size: 10px; color: var(--c-accent-600); }
+.vg-name.is-off { color: var(--c-text-mute); font-weight: var(--fw-normal); text-decoration: line-through; }
+
+.vg-body { position: relative; }
+.vg-row { position: absolute; left: 0; display: flex; height: var(--h-row); }
+.vg-rn {
+  position: sticky; left: 0; z-index: 2; flex: none;
+  padding: 0 6px; line-height: var(--h-row); text-align: right;
+  background: var(--c-surface-2); color: var(--c-text-mute);
+  font: var(--fs-xs)/var(--h-row) var(--font-mono);
+  border-right: 1px solid var(--c-border-strong); border-bottom: 1px solid var(--c-border);
+}
+.vg-c {
+  flex: none; padding: 0 6px;
+  line-height: calc(var(--h-row) - 1px);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border);
+  cursor: default;
+}
+.vg-c.is-num { text-align: right; font-family: var(--font-mono); }
+.vg-c.is-null::after { content: 'NULL'; color: var(--c-text-mute); font-size: var(--fs-xs); font-style: italic; }
+
+/* プレビューの範囲の色（凡例と同じ） */
+#preview-grid .vg-c { cursor: pointer; }
+.vg-c.is-out { background: var(--c-out-bg); color: var(--c-out-text); }
+.vg-c.is-hdr { background: var(--c-hdr-bg); font-weight: var(--fw-bold); color: var(--c-primary-900); }
+.vg-c.is-data { background: var(--c-data-bg); }
+.vg-c.is-foot { background: var(--c-footer-bg); color: var(--c-text-sub); text-decoration: line-through; }
+.vg-c.is-xcol { background: var(--c-out-bg); color: var(--c-out-text); text-decoration: line-through; }
+.vg-row.is-hdr-row .vg-rn { color: var(--c-primary-700); font-weight: var(--fw-bold); }
+.vg-c.is-start { box-shadow: inset 0 0 0 2px var(--c-accent-600); }
+.vg-c.is-sel { box-shadow: inset 0 0 0 2px var(--c-primary-600); background: var(--c-primary-100); }
+.vg-c:hover { filter: brightness(.97); }
+
+/* ---------- SQL で確認 ---------- */
+.sql-wrap { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--w-schema) 1fr; }
+.sql-schema { overflow-y: auto; padding: var(--sp-3); border-right: 1px solid var(--c-border); background: var(--c-surface); }
+.schema-head { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3); font-weight: var(--fw-bold); color: var(--c-primary-700); }
+.schema-head small { font-weight: var(--fw-normal); color: var(--c-text-mute); }
+.schema-tbl { margin-bottom: var(--sp-2); }
+.schema-tbl summary { display: flex; align-items: center; gap: var(--sp-2); padding: 4px var(--sp-2); border-radius: var(--r-sm); cursor: pointer; }
+.schema-tbl summary:hover { background: var(--c-primary-50); }
+.schema-tbl summary > i { color: var(--c-primary-500); }
+.schema-name { flex: 1; min-width: 0; font-weight: var(--fw-bold); color: var(--c-primary-700); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.schema-name:hover { text-decoration: underline; }
+.schema-tbl summary small { font: var(--fs-xs) var(--font-mono); color: var(--c-text-mute); }
+.schema-tbl ul { list-style: none; margin: 0; padding: 0 0 0 var(--sp-5); }
+.schema-col { display: flex; align-items: center; gap: var(--sp-2); width: 100%; padding: 2px var(--sp-2); border: 0; border-radius: var(--r-sm); background: none; font: inherit; font-size: var(--fs-sm); text-align: left; cursor: pointer; color: var(--c-text); }
+.schema-col:hover { background: var(--c-primary-50); color: var(--c-primary-700); }
+.schema-col i { width: 14px; font-size: 10px; color: var(--c-accent-600); text-align: center; }
+.schema-col span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sql-main { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.sql-toolbar { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); background: var(--c-surface); }
+.sql-editor {
+  flex: none; height: 130px; min-height: 60px; resize: vertical;
+  margin: 0 var(--sp-4); padding: var(--sp-3);
+  border: 1px solid var(--c-border-strong); border-radius: var(--r-md);
+  font: var(--fs-md)/1.6 var(--font-mono); color: var(--c-text);
+  background: #fbfcfe;
+}
+.sql-editor:focus { outline: none; border-color: var(--c-primary-500); box-shadow: 0 0 0 3px var(--c-primary-100); }
+.sql-resbar { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); }
+.sql-status { display: inline-flex; align-items: center; gap: var(--sp-2); padding: 2px var(--sp-3); border-radius: var(--r-md); color: var(--c-text-sub); }
+.sql-status > i { color: var(--c-ok-600); }
+.sql-error { display: flex; gap: var(--sp-3); align-items: baseline; margin: 0 var(--sp-4) var(--sp-3); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--c-err-100); color: var(--c-err-600); font-family: var(--font-mono); white-space: pre-wrap; }
+.sql-grid { flex: 1; min-height: 0; position: relative; margin: 0 var(--sp-4) var(--sp-4); border: 1px solid var(--c-border); border-radius: var(--r-md); overflow: hidden; }

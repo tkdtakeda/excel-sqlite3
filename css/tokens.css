@@ -1,0 +1,105 @@
+/* =========================================================
+   css/tokens.css : デザイントークン（色・余白・角丸・文字・高さ・時間）
+   生の値はここだけに書き、ほかの CSS は変数を参照する
+   ========================================================= */
+:root {
+  /* ---- 色：メイン（落ち着いた青） ---- */
+  --c-primary-900: #16304d;
+  --c-primary-700: #1f4e79;
+  --c-primary-600: #2a6096;
+  --c-primary-500: #3a73ad;
+  --c-primary-300: #93b6da;
+  --c-primary-200: #c9dcef;
+  --c-primary-100: #e4eef8;
+  --c-primary-50:  #f2f7fc;
+
+  /* ---- 色：アクセント（青に隣接する青緑：類似色調和） ---- */
+  --c-accent-600: #1f7f86;
+  --c-accent-200: #b7e0e3;
+  --c-accent-100: #dcf0f1;
+
+  /* ---- 色：ベース（白系） ---- */
+  --c-bg:        #f6f8fb;
+  --c-surface:   #ffffff;
+  --c-surface-2: #f0f3f7;
+  --c-border:    #d8dee7;
+  --c-border-strong: #b7c1ce;
+  --c-text:      #1f2a37;
+  --c-text-sub:  #5b6778;
+  --c-text-mute: #8a95a5;
+  --c-overlay:   rgba(22, 48, 77, 0.35);
+
+  /* ---- 色：状態（必ずアイコン＋文字と併用する） ---- */
+  --c-ok-600:   #2e7d4f;
+  --c-ok-100:   #e3f3e9;
+  --c-warn-600: #9a6200;
+  --c-warn-100: #fdf1d8;
+  --c-err-600:  #b3363a;
+  --c-err-100:  #fbe6e6;
+  --c-new-bg:   #fff6c9;
+
+  /* ---- 色：プレビューの範囲表示 ---- */
+  --c-hdr-bg:    #d6e5f4;
+  --c-data-bg:   #ffffff;
+  --c-out-bg:    #f3f5f8;
+  --c-out-text:  #a3adba;
+  --c-footer-bg: #f7ece0;
+
+  /* ---- 余白 ---- */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 8px;
+  --sp-4: 12px;
+  --sp-5: 16px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+
+  /* ---- 角丸 ---- */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-pill: 999px;
+
+  /* ---- 文字 ---- */
+  --font: "Segoe UI", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --font-mono: "Consolas", "BIZ UDGothic", monospace;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 15px;
+  --fs-xl: 18px;
+  --fw-normal: 400;
+  --fw-bold: 600;
+
+  /* ---- 高さ・幅 ---- */
+  --h-header: 52px;
+  --h-sourcebar: 40px;
+  --h-summary: 36px;
+  --h-row: 26px;
+  --h-grid-head: 42px;
+  --h-control: 30px;
+  --w-rail: 52px;
+  --w-panel: 340px;
+  --w-rownum: 56px;
+  --w-col-min: 64px;
+  --w-col-max: 260px;
+  --w-schema: 240px;
+  --w-modal-md: 720px;
+  --w-modal-sm: 460px;
+
+  /* ---- 影 ---- */
+  --shadow-1: 0 1px 2px rgba(22, 48, 77, 0.08);
+  --shadow-2: 0 6px 24px rgba(22, 48, 77, 0.18);
+
+  /* ---- 時間 ---- */
+  --t-fast: 120ms;
+  --t-mid: 220ms;
+  --t-flash: 1600ms;
+
+  /* ---- 重なり順 ---- */
+  --z-panel: 20;
+  --z-pop: 40;
+  --z-modal: 60;
+  --z-busy: 70;
+  --z-toast: 80;
+}
