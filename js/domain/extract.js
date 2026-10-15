@@ -56,6 +56,20 @@
     }
   }
 
+  /** 行の値が、列名（最下段の名前か、つないだ名前）とすべて同じか */
+  function isHeaderRepeat(row, c0, names) {
+    if (!row) return false;
+    let filled = 0;
+    for (let i = 0; i < names.length; i++) {
+      const v = cleanName(row[c0 + i]);
+      if (!v) continue;
+      const n = names[i];
+      if (v !== n && !n.endsWith('_' + v)) return false;
+      filled++;
+    }
+    return filled > 0 && filled >= Math.ceil(names.filter(Boolean).length / 2);
+  }
+
   function makeColumns(src, g, c0, c1, hdr, r0, rowIdx) {
     const s = src.settings;
     const cols = [];
@@ -81,7 +95,7 @@
   function emptyResult(src) {
     return {
       startRow: 0, startCol: 0, endCol: -1, lastRow: -1, header: { has: false, rows: 0 }, dataStart: 0,
-      auto: { row: -1, col: 0, header: { has: false, rows: 0 } }, rowIdx: new Int32Array(0), footerRows: [],
+      auto: { row: -1, col: 0, header: { has: false, rows: 0 } }, rowIdx: new Int32Array(0), footerRows: [], dupHeaders: 0,
       columns: [], rowCount: 0, empty: true, fixed: !!src.fixed,
     };
   }
@@ -101,7 +115,7 @@
     const hdr = { has: true, rows: 1 };
     return {
       startRow: 0, startCol: 0, endCol: cols.length - 1, lastRow: n, header: hdr, dataStart: 1,
-      auto: { row: 0, col: 0, header: hdr }, rowIdx, footerRows: [], columns: cols, rowCount: n, fixed: true,
+      auto: { row: 0, col: 0, header: hdr }, rowIdx, footerRows: [], dupHeaders: 0, columns: cols, rowCount: n, fixed: true,
     };
   }
 
@@ -126,12 +140,22 @@
     for (let r = dataStart; r <= lastRow; r++) if (!D.rowBlank(g[r], c0, c1)) idx.push(r);
     const skip = Math.min(Math.max(0, s.skipFooter | 0), idx.length);
     const footerRows = skip ? idx.splice(idx.length - skip, skip) : [];
+    // データに紛れたヘッダー行のくり返し（ファイルを継ぎ足したときなど）は取り込まない
+    let dupHeaders = 0;
+    if (hdr.has) {
+      const names = [];
+      for (let c = c0; c <= c1; c++) names.push(headerName(g, r0, hdr.rows, c));
+      const kept = idx.filter((r) => !isHeaderRepeat(g[r], c0, names));
+      dupHeaders = idx.length - kept.length;
+      idx.length = 0;
+      kept.forEach((r) => idx.push(r));
+    }
     const rowIdx = Int32Array.from(idx);
 
     return {
       startRow: r0, startCol: c0, endCol: c1, lastRow, header: hdr, dataStart,
       auto: { row: auto.row, col: auto.col, header: autoHeader },
-      rowIdx, footerRows, columns: makeColumns(src, g, c0, c1, hdr, r0, rowIdx), rowCount: rowIdx.length, fixed: false,
+      rowIdx, footerRows, dupHeaders, columns: makeColumns(src, g, c0, c1, hdr, r0, rowIdx), rowCount: rowIdx.length, fixed: false,
     };
   }
 

@@ -129,6 +129,24 @@
       },
     },
     {
+      id: 'colsdiff', icon: 'fa-solid fa-object-group', title: '列が違う 2 ファイルの結合', file: '店舗別売上_11月.xlsx',
+      desc: '11 月（4 列）と 12 月（5 列：「客数」が「来店数」に変わり「備考」が増えた CSV。途中にヘッダー行のくり返しあり）。12 月のテーブル名を「店舗別売上」に変えると、違いを知らせてから列を追加して結合します。',
+      make() {
+        const rand = rng(8);
+        const nov = [['日付', '店舗コード', '売上金額', '客数']];
+        for (let d = 1; d <= 10; d++) nov.push([day(2026, 11, d), STORES[d % 2][0], 30000 + Math.floor(rand() * 90000), 20 + Math.floor(rand() * 80)]);
+        const lines = ['日付,店舗コード,売上金額,来店数,備考'];
+        for (let d = 1; d <= 10; d++) {
+          if (d === 6) lines.push('日付,店舗コード,売上金額,来店数,備考'); // 書き出しを継ぎ足したときに紛れたヘッダー
+          lines.push('2026-12-' + pad(d, 2) + ',' + STORES[d % 2][0] + ',' + (30000 + Math.floor(rand() * 90000)) + ',' + (20 + Math.floor(rand() * 80)) + ',' + (d % 4 === 0 ? 'セール' : ''));
+        }
+        return [
+          xlsxFile(this.file, [{ name: '店舗別売上', aoa: nov }]),
+          new File(['\ufeff' + lines.join('\r\n')], '店舗別売上_12月.csv', { type: 'text/csv' }),
+        ];
+      },
+    },
+    {
       id: 'sjis', icon: 'fa-solid fa-file-csv', title: 'Shift_JIS の CSV', file: '顧客一覧_SJIS.csv',
       desc: 'Excel で保存した Shift_JIS の CSV。文字コードを自動で判定します。引用符・桁区切りのカンマ（"1,200,000"）も扱えます。',
       make() {
@@ -176,7 +194,7 @@
     let files;
     try {
       files = [];
-      for (const p of list) files.push(await p.make());
+      for (const p of list) files.push(...[].concat(await p.make()));
     } catch (e) {
       X.ui.toast('サンプルを作れませんでした：' + e.message, 'err');
       return;

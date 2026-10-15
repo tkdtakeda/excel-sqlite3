@@ -40,6 +40,7 @@
       // 今回読み込んだ最初のシートを表示する
       const first = added[0].sourceIds.find((id) => X.ws.source(id).include) || added[0].sourceIds[0];
       if (first) X.ws.setActive(first);
+      X.merge.afterLoad(added);
       const n = added.reduce((s, f) => s + f.sourceIds.length, 0);
       X.ui.toast(added.length + ' 件のファイル（' + n + ' シート）を読み込みました', 'ok');
     }

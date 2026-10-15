@@ -59,6 +59,7 @@
     }
     el.appendChild(chip('table-list', 'データ', fmt.num(r.rowCount) + ' 行 × ' + inc + ' 列'));
     if (r.footerRows.length) el.appendChild(chip('scissors', '末尾除外', r.footerRows.length + ' 行'));
+    if (r.dupHeaders) el.appendChild(chip('heading', 'ヘッダーのくり返しを除外', r.dupHeaders + ' 行', null, 'データの途中にあったヘッダーと同じ行は取り込みません'));
     const merged = X.ws.included().filter((x) => x.tableName.toLowerCase() === src.tableName.toLowerCase()).length > 1;
     el.appendChild(chip('database', 'テーブル', src.tableName, merged ? h('span', { class: 'tag tag-merge' }, icon('object-group'), '結合') : null));
     if (src.preset) el.appendChild(h('span', { class: 'tag tag-preset', title: 'プリセットを自動で適用しました' }, icon('bookmark'), src.preset));
@@ -76,6 +77,8 @@
     for (let k = 0; k < r.header.rows; k++) roles[r.startRow + k] = 1;
     for (let i = 0; i < r.rowIdx.length; i++) roles[r.rowIdx[i]] = 2;
     r.footerRows.forEach((x) => { roles[x] = 3; });
+    // 範囲内で取り込まない行（ヘッダーのくり返し）も「除外」の色にする
+    for (let x = r.dataStart; x <= r.lastRow; x++) if (!roles[x] && !X.detect.rowBlank(src.grid[x], r.startCol, r.endCol)) roles[x] = 3;
   }
 
   function widths(src) {

@@ -37,7 +37,7 @@
     body.appendChild(ui.section('出力先のテーブル', 'database',
       h('div', { class: 'row', 'data-form': '' },
         h('input', { type: 'text', class: 'inp grow', 'data-key': 'tname', value: src.tableName, title: '同じ名前にしたシートは 1 つのテーブルにまとめます',
-          on: { change: (e) => { if (e.target.value.trim() && e.target.value !== src.tableName) X.ws.setTableName(id, e.target.value); } } })),
+          on: { change: (e) => { if (e.target.value.trim() && e.target.value !== src.tableName) X.merge.setTableName([id], e.target.value); } } })),
       h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: src.include, on: { change: (e) => X.ws.setInclude(id, e.target.checked) } }), 'このシートを取り込む'),
       h('p', { class: 'note' }, icon('circle-info'), '同じテーブル名にしたシートは、1 つのテーブルにまとめて出力します。')));
 

@@ -11,7 +11,7 @@
   function applyTo(p, src) {
     const r = X.presets.resolve(p, src);
     X.ws.replaceSettings(src.id, r.settings, r.overrides);
-    if (p.tableName) X.ws.setTableName(src.id, p.tableName);
+    if (p.tableName) X.merge.setTableName([src.id], p.tableName);
     src.preset = p.name;
     ui.toast('「' + p.name + '」を当てはめました（見出しの一致 ' + Math.round(r.score * 100) + '%）', 'ok');
   }

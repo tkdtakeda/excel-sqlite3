@@ -90,6 +90,19 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--c-primary-
 .tag-sample { background: var(--c-accent-100); color: var(--c-accent-600); }
 .tag-ok { background: var(--c-ok-100); color: var(--c-ok-600); }
 .tag-off { background: var(--c-surface-2); color: var(--c-text-mute); }
+.tag-warn { background: var(--c-warn-100); color: var(--c-warn-600); }
+.tag-add { background: var(--c-accent-100); color: var(--c-accent-600); }
+.tag-miss { background: var(--c-surface-2); color: var(--c-text-sub); border: 1px dashed var(--c-border-strong); }
+
+/* 列が違うシートをまとめるときのメッセージ */
+.merge-msg p { margin: 0 0 var(--sp-4); line-height: 1.6; }
+.merge-item { padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-3); border: 1px solid var(--c-border); border-radius: var(--r-md); }
+.merge-src { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+.merge-src > i { color: var(--c-primary-600); }
+.merge-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); font-size: var(--fs-sm); }
+.merge-line > i { width: 14px; color: var(--c-primary-500); }
+.merge-line small { color: var(--c-text-mute); }
+.merge-cols { display: inline-flex; flex-wrap: wrap; gap: var(--sp-2); }
 
 .status-chip {
   display: inline-flex; align-items: center; gap: var(--sp-2);
@@ -163,8 +176,10 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--c-primary-
 .tbl-head > i { color: var(--c-primary-600); }
 .tbl-meta { margin-left: auto; font-size: var(--fs-xs); color: var(--c-text-sub); }
 .tbl-parts { list-style: none; margin: var(--sp-3) 0 0; padding: 0; font-size: var(--fs-sm); color: var(--c-text-sub); }
-.tbl-parts li { display: flex; gap: var(--sp-3); align-items: center; padding: 1px 0; }
-.tbl-parts li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbl-parts li { padding: 1px 0; }
+.part-main { display: flex; gap: var(--sp-3); align-items: center; }
+.part-main span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.part-diff { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: 2px 0 var(--sp-2) 18px; }
 .tbl-parts i { font-size: 10px; color: var(--c-text-mute); }
 .tbl-sql summary { margin-top: var(--sp-3); font-size: var(--fs-sm); color: var(--c-primary-600); cursor: pointer; }
 .tbl-sql pre { margin: var(--sp-3) 0 0; padding: var(--sp-3); border-radius: var(--r-sm); background: var(--c-surface-2); font: var(--fs-xs)/1.5 var(--font-mono); overflow-x: auto; }

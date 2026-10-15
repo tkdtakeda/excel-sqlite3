@@ -36,15 +36,27 @@
     }
   }
 
+  /** 結合の内訳 1 件（列の違い・取り除いたヘッダー行を添える） */
+  function partItem(p) {
+    const d = p.diff;
+    return h('li', null,
+      h('div', { class: 'part-main' }, icon('arrow-turn-up', 'fa-rotate-90'),
+        h('span', { text: p.src.fileName + (p.src.kind === 'excel' || p.src.kind === 'sqlite' ? ' / ' + p.src.label : '') }),
+        h('small', { text: fmt.num(p.rows.length) + ' 行' })),
+      X.plan.hasDiff(d) || p.src.result.dupHeaders ? h('div', { class: 'part-diff' },
+        d && d.from !== d.to ? h('span', { class: 'tag tag-warn', title: 'それまでの列の数 → このシートの列の数' }, icon('triangle-exclamation'), d.from + '→' + d.to + ' 列') : null,
+        d ? d.added.map((n) => h('span', { class: 'tag tag-add', title: '末尾に追加した列（ほかのシートの行は空欄）', text: '+' + n })) : null,
+        d ? d.missing.map((n) => h('span', { class: 'tag tag-miss', title: 'このシートにない列（このシートの行は空欄）', text: '−' + n })) : null,
+        p.src.result.dupHeaders ? h('span', { class: 'tag', title: 'データに紛れていたヘッダー行を取り除きました' }, icon('heading'), 'ヘッダー行 ' + p.src.result.dupHeaders + ' 行を除外') : null) : null);
+  }
+
   function tableCard(t) {
     const sql = X.plan.createSql(t);
     return h('div', { class: 'tbl-card' },
       h('div', { class: 'tbl-head' }, icon('table'), h('b', { text: t.name }),
         t.merged ? h('span', { class: 'tag tag-merge' }, icon('object-group'), t.parts.length + ' 件を結合') : null,
         h('span', { class: 'tbl-meta', text: fmt.num(t.rowCount) + ' 行 × ' + t.columns.length + ' 列' })),
-      t.merged ? h('ul', { class: 'tbl-parts' }, t.parts.map((p) => h('li', null, icon('arrow-turn-up', 'fa-rotate-90'),
-        h('span', { text: p.src.fileName + (p.src.kind === 'excel' || p.src.kind === 'sqlite' ? ' / ' + p.src.label : '') }),
-        h('small', { text: fmt.num(p.src.result.rowCount) + ' 行' })))) : null,
+      t.merged ? h('ul', { class: 'tbl-parts' }, t.parts.map(partItem)) : null,
       h('details', { class: 'tbl-sql' }, h('summary', null, icon('code'), 'CREATE 文を見る'), h('pre', { text: sql })));
   }
 
@@ -59,11 +71,7 @@
 
   function hintCard(list, i) {
     const input = h('input', { type: 'text', class: 'inp grow', 'data-key': 'merge' + i, value: commonName(list), title: 'まとめたテーブルの名前' });
-    const merge = () => {
-      const name = X.ws.sanitizeTable(input.value);
-      list.forEach((s) => X.ws.setTableName(s.id, name));
-      ui.toast('「' + name + '」1 つにまとめました（' + list.length + ' 件）', 'ok');
-    };
+    const merge = () => X.merge.setTableName(list.map((s) => s.id), input.value);
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); e.stopPropagation(); merge(); } });
     return h('div', { class: 'hint-card' },
       h('div', null, icon('lightbulb'), h('b', { text: '列の構成が同じシートがあります' })),
