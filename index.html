@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excel → SQLite 変換</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/grid.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <div class="brand" title="Excel・CSV・SQLite → SQLite">
+        <span class="brand-mark"><i class="fa-solid fa-table-cells"></i><i class="fa-solid fa-arrow-right"></i><i class="fa-solid fa-database"></i></span>
+        <span class="brand-name">Excel → SQLite</span>
+      </div>
+      <nav id="viewtabs" class="viewtabs" role="tablist"></nav>
+      <div class="topbar-right">
+        <span id="db-status" class="status-chip" hidden></span>
+        <button id="btn-save" class="btn btn-primary" disabled><i class="fa-solid fa-download"></i>SQLite を保存</button>
+      </div>
+    </header>
+
+    <nav id="rail" class="rail" aria-label="設定パネル"></nav>
+
+    <aside id="panel" class="panel">
+      <div class="panel-head">
+        <h2 id="panel-title"></h2>
+        <button class="icon-btn" title="閉じる" onclick="X2S.shell.close()"><i class="fa-solid fa-angles-left"></i></button>
+      </div>
+      <div id="panel-body" class="panel-body"></div>
+    </aside>
+
+    <main class="main">
+      <section id="view-preview" class="view view-preview">
+        <div id="sourcebar" class="sourcebar"></div>
+        <div id="summary" class="summary"></div>
+        <div id="preview-grid" class="grid-host"></div>
+        <div id="empty-state" class="empty-state"></div>
+      </section>
+      <section id="view-sql" class="view" hidden></section>
+    </main>
+  </div>
+
+  <div id="drop-overlay" class="drop-overlay">
+    <div class="drop-box"><i class="fa-solid fa-cloud-arrow-up"></i><p>ここにドロップして読み込む</p><small>Excel / CSV / TSV / SQLite</small></div>
+  </div>
+  <div id="busy" class="busy"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <input type="file" id="file-input" multiple hidden>
+
+  <!-- 外部の部品（CDN） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- 基盤 -->
+  <script src="js/core/util.js"></script>
+  <!-- 画面を持たない処理 -->
+  <script src="js/domain/types.js"></script>
+  <script src="js/domain/detect.js"></script>
+  <script src="js/domain/extract.js"></script>
+  <script src="js/core/workspace.js"></script>
+  <script src="js/domain/plan.js"></script>
+  <script src="js/domain/preset.js"></script>
+  <script src="js/engine/engine.js"></script>
+  <script src="js/domain/builder.js"></script>
+  <!-- 入出力 -->
+  <script src="js/io/readers.js"></script>
+  <script src="js/io/readers/csv.js"></script>
+  <script src="js/io/readers/excel.js"></script>
+  <script src="js/io/readers/sqlite.js"></script>
+  <script src="js/io/export.js"></script>
+  <script src="js/sample/sample.js"></script>
+  <!-- 画面 -->
+  <script src="js/ui/common.js"></script>
+  <script src="js/ui/shell.js"></script>
+  <script src="js/ui/vgrid.js"></script>
+  <script src="js/ui/preview.js"></script>
+  <script src="js/ui/sqlview.js"></script>
+  <script src="js/ui/panel-files.js"></script>
+  <script src="js/ui/panel-settings.js"></script>
+  <script src="js/ui/panel-columns.js"></script>
+  <script src="js/ui/panel-output.js"></script>
+  <script src="js/ui/panel-presets.js"></script>
+  <script src="js/ui/panel-samples.js"></script>
+  <script src="js/ui/help.js"></script>
+  <script src="js/ui/merge.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
